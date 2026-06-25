@@ -85,7 +85,7 @@ export class Title
             }
 
             
-            document.title = 'Bruno' + title.join('')
+            document.title = 'Shiva Mani Goundar' + title.join('')
         }
     }
 }
