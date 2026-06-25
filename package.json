@@ -1,5 +1,5 @@
 {
-  "name": "bruno-simon-folio-2025",
+  "name": "shiva-mani-goundar-folio-2025",
   "version": "0.0.0",
   "main": "index.js",
   "type": "module",
@@ -37,9 +37,9 @@
     "tweakpane": "^4.0.4",
     "uuid": "^11.1.0",
     "vite": "^7.2.4",
-    "vite-plugin-node-polyfills": "^0.24.0",
-    "vite-plugin-restart": "^0.4.1",
-    "vite-plugin-top-level-await": "^1.6.0",
+    "vite-plugin-node-polyfills": "^0.28.0",
+    "vite-plugin-restart": "^2.0.0",
+    "vite-plugin-top-level-await": "^1.2.2",
     "vite-plugin-wasm": "^3.5.0"
   }
 }
