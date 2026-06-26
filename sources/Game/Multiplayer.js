@@ -12,10 +12,13 @@ export class Multiplayer
         this.pendingRoomCode = null
         this.playerId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`
         this.players = new Map()
-        this.broadcastInterval = 0.1
+        this.broadcastInterval = 0.15
         this.lastBroadcastTime = 0
         this.remoteTimeout = 4
         this.channel = null
+        this.remoteUrl = this.getRemoteUrl()
+        this.remoteSource = null
+        this.remoteConnected = false
 
         this.modal = this.game.modals.items.get('multiplayer')
         this.element = this.modal.element
@@ -76,6 +79,17 @@ export class Multiplayer
         {
             this.onMessage(event.data)
         })
+    }
+
+    getRemoteUrl()
+    {
+        if(import.meta.env.VITE_MULTIPLAYER_URL)
+            return import.meta.env.VITE_MULTIPLAYER_URL.replace(/\/$/, '')
+
+        if(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            return ''
+
+        return `${window.location.origin}/api/multiplayer`
     }
 
     setEvents()
@@ -263,6 +277,7 @@ export class Multiplayer
         if(this.roomCode && this.roomCode !== roomCode)
             this.sendMessage('leave')
 
+        this.disconnectRemote()
         this.clearRemotePlayers()
 
         this.roomCode = roomCode
@@ -280,6 +295,7 @@ export class Multiplayer
         this.setUrlRoom(roomCode)
         this.renderPlayers()
         this.setStatus(created ? `Room ${roomCode} created.` : `Joined room ${roomCode}.`, 'success')
+        this.connectRemote()
         this.sendMessage('join')
         this.sendMessage('state')
         this.update()
@@ -293,6 +309,7 @@ export class Multiplayer
         const previousRoomCode = this.roomCode
 
         this.sendMessage('leave')
+        this.disconnectRemote()
         this.roomCode = null
         this.pendingRoomCode = null
         this.roomLinkInput.value = ''
@@ -362,12 +379,62 @@ export class Multiplayer
         }
     }
 
-    sendMessage(type)
+    connectRemote()
     {
-        if(!this.channel || !this.roomCode)
+        if(!this.remoteUrl || !this.roomCode)
             return
 
-        this.channel.postMessage({
+        const url = new URL(this.remoteUrl, window.location.origin)
+        url.searchParams.set('room', this.roomCode)
+        url.searchParams.set('player', this.playerId)
+        url.searchParams.set('name', this.getName())
+
+        this.remoteSource = new EventSource(url.toString())
+
+        this.remoteSource.addEventListener('open', () =>
+        {
+            this.remoteConnected = true
+            this.setStatus(`Joined room ${this.roomCode}. Online sync ready.`, 'success')
+        })
+
+        this.remoteSource.addEventListener('message', (event) =>
+        {
+            try
+            {
+                this.onMessage(JSON.parse(event.data))
+            }
+            catch(error)
+            {
+                // Ignore malformed room messages.
+            }
+        })
+
+        this.remoteSource.addEventListener('error', () =>
+        {
+            if(!this.roomCode)
+                return
+
+            this.remoteConnected = false
+            this.setStatus(`Joined room ${this.roomCode}. Online sync reconnecting...`)
+        })
+    }
+
+    disconnectRemote()
+    {
+        if(!this.remoteSource)
+            return
+
+        this.remoteSource.close()
+        this.remoteSource = null
+        this.remoteConnected = false
+    }
+
+    sendMessage(type)
+    {
+        if(!this.roomCode)
+            return
+
+        const message = {
             type,
             roomCode: this.roomCode,
             player: {
@@ -376,6 +443,29 @@ export class Multiplayer
             },
             state: this.getLocalState(),
             sentAt: Date.now(),
+        }
+
+        if(this.channel)
+            this.channel.postMessage(message)
+
+        this.sendRemoteMessage(message)
+    }
+
+    sendRemoteMessage(message)
+    {
+        if(!this.remoteUrl || !this.roomCode)
+            return
+
+        fetch(this.remoteUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(message),
+            keepalive: message.type === 'leave',
+        }).catch(() =>
+        {
+            // EventSource will expose the connection status; dropped state packets are fine.
         })
     }
 
