@@ -1,7 +1,7 @@
 import * as THREE from 'three/webgpu'
 import CameraControls from 'camera-controls'
 import { Game } from './Game.js'
-import { clamp, lerp, remap, smoothstep } from './utilities/maths.js'
+import { clamp, lerp, remap, smoothstep, smallestAngle } from './utilities/maths.js'
 import { mix, uniform, vec4, Fn, positionGeometry, attribute } from 'three/tsl'
 import gsap from 'gsap'
 import { Pointer } from './Inputs/Pointer.js'
@@ -10,27 +10,25 @@ import { alea } from 'seedrandom'
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
 import { Line2 } from 'three/examples/jsm/lines/webgpu/Line2.js'
 
-CameraControls.install( { THREE: THREE } )
+CameraControls.install({ THREE: THREE })
 
 const rng = new alea('speedLines')
 
-export class View
-{
+export class View {
     static MODE_DEFAULT = 1
     static MODE_FREE = 2
+    static MODE_THIRD_PERSON = 3
 
-    constructor(idealRatio = 1920 / 1080)
-    {
+    constructor(idealRatio = 1920 / 1080) {
         this.game = Game.getInstance()
-        
+
         this.mode = View.MODE_DEFAULT
         this.position = new THREE.Vector3()
         this.delta = new THREE.Vector3()
         this.idealRatio = idealRatio
         this.ratioOverflow = Math.max(1, this.idealRatio / this.game.viewport.ratio) - 1
 
-        if(this.game.debug.active)
-        {
+        if (this.game.debug.active) {
             this.debugPanel = this.game.debug.panel.addFolder({
                 title: '🎥 View',
                 expanded: false,
@@ -44,10 +42,10 @@ export class View
                     {
                         default: View.MODE_DEFAULT,
                         free: View.MODE_FREE,
+                        thirdPerson: View.MODE_THIRD_PERSON,
                     }
                 }
-            ).on('change', () => 
-            {
+            ).on('change', () => {
                 this.setMode(this.mode)
             })
         }
@@ -63,47 +61,57 @@ export class View
         this.setSpeedLines()
         this.setMapControls()
 
-        this.game.ticker.events.on('tick', () =>
-        {
+        this.game.ticker.events.on('tick', () => {
             this.update()
         }, 7)
 
         this.update()
 
-        this.game.viewport.events.on('change', () =>
-        {
+        this.game.viewport.events.on('change', () => {
             this.resize()
         })
 
-        this.game.viewport.events.on('throttleChange', () =>
-        {
+        this.game.viewport.events.on('throttleChange', () => {
             this.throttleResize()
         }, 1)
 
         // Toggle
-        if(this.game.debug.active)
-        {
+        if (this.game.debug.active) {
             this.game.inputs.addActions([
-                { name: 'viewToggle', categories: [], keys: [ 'Keyboard.KeyV' ] }
+                { name: 'viewToggle', categories: [], keys: ['Keyboard.KeyV'] }
             ])
 
-            this.game.inputs.events.on('viewToggle', (action) =>
-            {
-                if(action.active)
-                {
+            this.game.inputs.events.on('viewToggle', (action) => {
+                if (action.active) {
                     this.toggleMode()
                 }
             })
         }
+
+        this.game.inputs.addActions([
+            { name: 'cameraToggle', categories: ['wandering', 'racing'], keys: ['Keyboard.KeyC', 'Gamepad.select'] }
+        ])
+
+        this.game.inputs.events.on('cameraToggle', (action) => {
+            if (action.active) {
+                if (this.mode === View.MODE_DEFAULT)
+                    this.setMode(View.MODE_THIRD_PERSON)
+                else if (this.mode === View.MODE_THIRD_PERSON)
+                    this.setMode(View.MODE_DEFAULT)
+            }
+        })
     }
 
-    toggleMode()
-    {
-        this.setMode(this.mode === View.MODE_FREE ? View.MODE_DEFAULT : View.MODE_FREE)
+    toggleMode() {
+        if (this.mode === View.MODE_DEFAULT)
+            this.setMode(View.MODE_THIRD_PERSON)
+        else if (this.mode === View.MODE_THIRD_PERSON)
+            this.setMode(View.MODE_FREE)
+        else
+            this.setMode(View.MODE_DEFAULT)
     }
 
-    setMode(mode)
-    {
+    setMode(mode) {
         this.mode = mode
 
         this.focusPoint.smoothedPosition.copy(this.focusPoint.position)
@@ -113,10 +121,9 @@ export class View
         this.freeMode.setPosition(this.camera.position.x, this.camera.position.y, this.camera.position.z)
     }
 
-    setFocusPoint()
-    {
+    setFocusPoint() {
         const defaultRespawn = this.game.respawns.getDefault()
-        
+
         this.focusPoint = {}
         this.focusPoint.trackedPosition = new THREE.Vector3(defaultRespawn.position.x, 0, defaultRespawn.position.z)
         this.focusPoint.isTracking = true
@@ -148,9 +155,8 @@ export class View
             'interact',
             'whisper'
         ]
-        this.game.inputs.events.on('actionStart', (action) =>
-        {
-            if(focusActionsNames.indexOf(action.name) !== -1)
+        this.game.inputs.events.on('actionStart', (action) => {
+            if (focusActionsNames.indexOf(action.name) !== -1)
                 this.focusPoint.isTracking = true
         })
 
@@ -159,8 +165,7 @@ export class View
         this.focusPoint.helper.userData.preventPreRender = true
         this.game.scene.add(this.focusPoint.helper)
 
-        if(this.game.debug.active)
-        {
+        if (this.game.debug.active) {
             const zoomDebugPanel = this.debugPanel.addFolder({
                 title: 'Magnet',
                 expanded: true,
@@ -169,8 +174,7 @@ export class View
         }
     }
 
-    setOptimalArea()
-    {
+    setOptimalArea() {
         this.optimalArea = {}
         this.optimalArea.needsUpdate = true
         this.optimalArea.position = new THREE.Vector3()
@@ -210,8 +214,7 @@ export class View
         // this.optimalArea.quad2Helper.computeLineDistances()
         // this.game.scene.add(this.optimalArea.quad2Helper)
 
-        this.optimalArea.update = () =>
-        {
+        this.optimalArea.update = () => {
             // Save state
             const savedPosition = this.defaultCamera.position.clone()
             const savedQuaternion = this.defaultCamera.quaternion.clone()
@@ -219,9 +222,9 @@ export class View
             // Reset with max radius
             let radiusMax = (this.spherical.radius.edges.max + this.ratioOverflow * this.spherical.radius.nonIdealRatioOffset)
 
-            if(this.game.quality.level === 0)
+            if (this.game.quality.level === 0)
                 radiusMax *= 1 - this.zoom.speedAmplitude
-            
+
             const offset = new THREE.Vector3()
             offset.setFromSphericalCoords(radiusMax, this.spherical.phi, this.spherical.theta)
 
@@ -268,7 +271,7 @@ export class View
 
             this.optimalArea.raycaster.setFromCamera(new THREE.Vector2(0, 1), this.defaultCamera)
             this.optimalArea.raycaster.ray.intersectPlane(this.optimalArea.floorPlane, this.optimalArea.farPosition)
-            
+
             this.optimalArea.nearDistance = this.defaultCamera.position.distanceTo(this.optimalArea.nearPosition)
             this.optimalArea.farDistance = this.defaultCamera.position.distanceTo(this.optimalArea.farPosition)
 
@@ -281,8 +284,7 @@ export class View
         }
     }
 
-    setZoom()
-    {
+    setZoom() {
         this.zoom = {}
         this.zoom.baseRatio = 0.6
         this.zoom.ratio = this.zoom.baseRatio
@@ -294,31 +296,26 @@ export class View
         this.zoom.toggleLast = -1
 
         this.game.inputs.addActions([
-            { name: 'zoom',    categories: [ 'wandering', 'racing' ], keys: [ 'Wheel.roll' ] },
-            { name: 'zoomToggle',  categories: [ 'wandering', 'racing' ], keys: [ 'Gamepad.r3' ] },
+            { name: 'zoom', categories: ['wandering', 'racing'], keys: ['Wheel.roll'] },
+            { name: 'zoomToggle', categories: ['wandering', 'racing'], keys: ['Gamepad.r3'] },
         ])
 
-        this.game.inputs.events.on('zoom', (action) =>
-        {
+        this.game.inputs.events.on('zoom', (action) => {
             this.zoom.baseRatio -= action.value * this.zoom.sensitivity
             this.zoom.baseRatio = clamp(this.zoom.baseRatio, 0, 1)
         })
 
-        this.game.inputs.events.on('zoomToggle', (action) =>
-        {
-            if(action.active)
-            {
+        this.game.inputs.events.on('zoomToggle', (action) => {
+            if (action.active) {
                 this.zoom.toggle -= this.zoom.toggleLast
                 this.zoom.toggleLast = this.zoom.toggle
             }
-            else
-            {
+            else {
                 this.zoom.toggle = 0
             }
         })
 
-        if(this.game.debug.active)
-        {
+        if (this.game.debug.active) {
             const zoomDebugPanel = this.debugPanel.addFolder({
                 title: 'Zoom',
                 expanded: false,
@@ -329,8 +326,7 @@ export class View
         }
     }
 
-    setSpherical()
-    {
+    setSpherical() {
         this.spherical = {}
         this.spherical.phi = Math.PI * (this.game.quality.level === 0 ? 0.31 : 0.27)
         this.spherical.theta = Math.PI * 0.25
@@ -343,8 +339,7 @@ export class View
         this.spherical.offset = new THREE.Vector3()
         this.spherical.offset.setFromSphericalCoords(this.spherical.radius.current, this.spherical.phi, this.spherical.theta)
 
-        if(this.game.debug.active)
-        {
+        if (this.game.debug.active) {
             const sphericalDebugPanel = this.debugPanel.addFolder({
                 title: 'Spherical',
                 expanded: false,
@@ -355,8 +350,7 @@ export class View
         }
     }
 
-    setRoll()
-    {
+    setRoll() {
         this.roll = {}
         this.roll.value = 0
         this.roll.velocity = 0
@@ -364,22 +358,19 @@ export class View
         this.roll.damping = 4
         this.roll.pullStrength = 100
         this.roll.kickStrength = 1
-        
-        this.roll.kick = (strength = 1) =>
-        {
+
+        this.roll.kick = (strength = 1) => {
             this.roll.speed = strength * this.roll.kickStrength * (Math.random() < 0.5 ? - 1 : 1)
         }
 
-        if(this.game.debug.active)
-        {
+        if (this.game.debug.active) {
             const rollDebugPanel = this.debugPanel.addFolder({
                 title: 'Roll',
                 expanded: false,
             })
             rollDebugPanel
                 .addButton({ title: 'kick' })
-                .on('click', () =>
-                {
+                .on('click', () => {
                     this.roll.kick()
                 })
 
@@ -389,8 +380,7 @@ export class View
         }
     }
 
-    setCameras()
-    {
+    setCameras() {
         this.camera = new THREE.PerspectiveCamera(25, this.game.viewport.ratio, 0.1, 200)
         this.camera.position.setFromSphericalCoords(this.spherical.radius.current, this.spherical.phi, this.spherical.theta)
 
@@ -404,14 +394,12 @@ export class View
         this.cameraHelper.userData.preventPreRender = true
         this.game.scene.add(this.cameraHelper)
 
-        if(this.game.debug.active)
-        {
+        if (this.game.debug.active) {
             this.debugPanel.addBinding(this.cameraHelper, 'visible', { label: 'cameraHelper' })
         }
     }
 
-    setFree()
-    {
+    setFree() {
         this.freeMode = new CameraControls(this.freeCamera, this.game.domElement)
         this.freeMode.enabled = this.mode === View.MODE_FREE
         this.freeMode.smoothTime = 0.075
@@ -419,8 +407,7 @@ export class View
         this.freeMode.dollySpeed = 0.2
     }
 
-    setCinematic()
-    {
+    setCinematic() {
         this.cinematic = {}
         this.cinematic.active = false
         this.cinematic.progress = 0
@@ -433,16 +420,14 @@ export class View
         // this.cinematic.targetHelper.userData.preventPreRender = true
         // this.game.scene.add(this.cinematic.targetHelper)
 
-        this.cinematic.start = (position, target) =>
-        {
+        this.cinematic.start = (position, target) => {
             this.cinematic.active = true
             this.cinematic.position = position.clone()
             this.cinematic.target = target.clone()
 
             this.cinematic.targetHelper?.position.copy(this.cinematic.target)
 
-            if(this.ratioOverflow > 0)
-            {
+            if (this.ratioOverflow > 0) {
                 const delta = this.cinematic.position.clone().sub(this.cinematic.target).setLength(this.ratioOverflow * this.cinematic.nonIdealRatioOffset)
                 this.cinematic.position.add(delta)
             }
@@ -451,16 +436,14 @@ export class View
             gsap.to(this.game.rendering.cheapDOFPass.strength, { value: 0, duration: 1.5, ease: 'power2.inOut', overwrite: true })
         }
 
-        this.cinematic.end = () =>
-        {
+        this.cinematic.end = () => {
             this.cinematic.active = false
             gsap.to(this.cinematic, { progress: 0, duration: 1, ease: 'power2.inOut', overwrite: true })
             gsap.to(this.game.rendering.cheapDOFPass.strength, { value: 1.5, duration: 1.5, ease: 'power2.inOut', overwrite: true })
         }
     }
 
-    setSpeedLines()
-    {
+    setSpeedLines() {
         this.speedLines = {}
         this.speedLines.strength = 0
         this.speedLines.smoothedStrength = uniform(this.speedLines.strength)
@@ -475,8 +458,7 @@ export class View
         const tipnessArray = new Float32Array(linesCount * 3)
         const maxDistance = Math.hypot(1, 1)
 
-        for(let i = 0; i < linesCount; i++)
-        {
+        for (let i = 0; i < linesCount; i++) {
             const i9 = i * 9
             const i3 = i * 3
 
@@ -489,7 +471,7 @@ export class View
             const thickness = rng() * 0.01 + 0.002
             const vertexLeft = vertexMiddle.clone().rotateAround(new THREE.Vector2(), thickness)
             const vertexRight = vertexMiddle.clone().rotateAround(new THREE.Vector2(), - thickness)
-            
+
             // Distance to center
             vertexMiddle.multiplyScalar(maxDistance)
             vertexLeft.multiplyScalar(maxDistance)
@@ -499,7 +481,7 @@ export class View
             positionArray[i9 + 0] = vertexLeft.x
             positionArray[i9 + 1] = vertexLeft.y
             positionArray[i9 + 2] = 0
-            
+
             positionArray[i9 + 3] = vertexMiddle.x
             positionArray[i9 + 4] = vertexMiddle.y
             positionArray[i9 + 5] = 0
@@ -532,15 +514,14 @@ export class View
         this.speedLines.geometry.setAttribute('tipness', new THREE.Float32BufferAttribute(tipnessArray, 1))
 
         this.speedLines.material = new THREE.MeshBasicNodeMaterial({ wireframe: false, depthWrite: false, depthTest: false })
-        this.speedLines.material.vertexNode = Fn(() =>
-        {
+        this.speedLines.material.vertexNode = Fn(() => {
             const timeRandomness = attribute('timeRandomness')
             const distance = attribute('distance')
             const tipness = attribute('tipness')
-            
+
             const osciliation = this.game.ticker.elapsedScaledUniform.mul(this.speedLines.speed).add(timeRandomness).sin().div(2).add(0.5)
             const newPosition = mix(positionGeometry.xy, this.speedLines.clipSpaceTarget.xy, tipness.mul(osciliation).mul(distance).mul(this.speedLines.smoothedStrength))
-            
+
             return vec4(newPosition, 0, 1)
         })()
         this.speedLines.material.outputNode = vec4(1)
@@ -551,8 +532,7 @@ export class View
         this.game.scene.add(this.speedLines.mesh)
 
         // Debug
-        if(this.game.debug.active)
-        {
+        if (this.game.debug.active) {
             const folder = this.debugPanel.addFolder({
                 title: 'Speed lines',
                 expanded: false,
@@ -562,8 +542,7 @@ export class View
         }
     }
 
-    resize()
-    {
+    resize() {
         this.ratioOverflow = Math.max(1, this.idealRatio / this.game.viewport.ratio) - 1
 
         this.camera.aspect = this.game.viewport.width / this.game.viewport.height
@@ -576,35 +555,29 @@ export class View
         this.freeCamera.updateProjectionMatrix()
     }
 
-    throttleResize()
-    {
+    throttleResize() {
         this.optimalArea.update()
     }
 
-    setMapControls()
-    {
+    setMapControls() {
         this.game.inputs.addActions([
-            { name: 'viewMapPointer', categories: [ 'intro', 'wandering' ], keys: [ 'Pointer.any' ] },
+            { name: 'viewMapPointer', categories: ['intro', 'wandering'], keys: ['Pointer.any'] },
         ])
 
-        this.game.inputs.events.on('viewMapPointer', (action) =>
-        {
-            if(this.mode === View.MODE_DEFAULT)
-            {
+        this.game.inputs.events.on('viewMapPointer', (action) => {
+            if (this.mode === View.MODE_DEFAULT || this.mode === View.MODE_THIRD_PERSON) {
                 // Focus point
-                if(action.active)
-                {
+                if (action.active) {
                     // Map
-                    if(this.game.inputs.pointer.mode === Pointer.MODE_MOUSE || this.game.inputs.pointer.touches.length >= 2)
-                    {
+                    if (this.game.inputs.pointer.mode === Pointer.MODE_MOUSE || this.game.inputs.pointer.touches.length >= 2) {
                         this.focusPoint.isTracking = false
-                        
-                        const mapMovement = new THREE.Vector2(this.game.inputs.pointer.delta.x, this.game.inputs.pointer.delta.y)                    
+
+                        const mapMovement = new THREE.Vector2(this.game.inputs.pointer.delta.x, this.game.inputs.pointer.delta.y)
                         mapMovement.rotateAround(new THREE.Vector2(), -this.spherical.theta)
 
                         const smallestSide = Math.min(this.game.viewport.width, this.game.viewport.height)
                         mapMovement.multiplyScalar(10 / smallestSide)
-                        
+
                         this.focusPoint.position.x -= mapMovement.x * 2
                         this.focusPoint.position.z -= mapMovement.y * 2
                     }
@@ -617,11 +590,9 @@ export class View
         })
     }
 
-    update()
-    {
+    update() {
         // Gamepad Joystick map controls
-        if(this.mode === View.MODE_DEFAULT && this.game.inputs.gamepad.joysticks.right.active && !this.cinematic.active)
-        {
+        if ((this.mode === View.MODE_DEFAULT || this.mode === View.MODE_THIRD_PERSON) && this.game.inputs.gamepad.joysticks.right.active && !this.cinematic.active) {
             this.focusPoint.isTracking = false
 
             const mapMovement = new THREE.Vector2(this.game.inputs.gamepad.joysticks.right.x, this.game.inputs.gamepad.joysticks.right.y)
@@ -631,23 +602,21 @@ export class View
             this.focusPoint.position.x += mapMovement.x
             this.focusPoint.position.z += mapMovement.y
         }
-        
+
         // Focus point
-        if(this.focusPoint.isTracking)
-        {
+        if (this.focusPoint.isTracking) {
             this.focusPoint.position.x = this.focusPoint.trackedPosition.x
             this.focusPoint.position.z = this.focusPoint.trackedPosition.z
         }
 
-        if(this.focusPoint.magnet.active)
-        {
+        if (this.focusPoint.magnet.active) {
             const magnetDelta = { x: this.focusPoint.trackedPosition.x - this.focusPoint.position.x, z: this.focusPoint.trackedPosition.z - this.focusPoint.position.z }
             const distanceToMagnet = Math.hypot(magnetDelta.x, magnetDelta.z)
             const magnetStrength = distanceToMagnet * this.focusPoint.magnet.multiplier
             this.focusPoint.position.x += magnetStrength * magnetDelta.x * this.game.ticker.delta
             this.focusPoint.position.z += magnetStrength * magnetDelta.z * this.game.ticker.delta
             // console.log(magnetStrength)
-            
+
 
             // console.log('---')
             // console.log(distanceToMagnet)
@@ -656,7 +625,7 @@ export class View
         }
 
         const easing = remap(this.focusPoint.easing, 0, 1, 1, this.game.ticker.delta * 10)
-        
+
         const newSmoothFocusPoint = this.focusPoint.smoothedPosition.clone().lerp(this.focusPoint.position, easing)
 
         // if(this.game.inputs.mode === Inputs.MODE_TOUCH && this.focusPoint.isTracking)
@@ -680,15 +649,13 @@ export class View
         const focusPointSpeed = Math.hypot(smoothFocusPointDelta.x, smoothFocusPointDelta.z) / this.game.ticker.delta
         this.focusPoint.smoothedPosition.copy(newSmoothFocusPoint)
 
-        if(this.focusPoint.helper.visible)
+        if (this.focusPoint.helper.visible)
             this.focusPoint.helper.position.copy(newSmoothFocusPoint)
-        
+
         // Default mode
-        if(this.mode === View.MODE_DEFAULT)
-        {
+        if (this.mode === View.MODE_DEFAULT || this.mode === View.MODE_THIRD_PERSON) {
             // Zoom
-            if(this.zoom.toggle !== 0)
-            {
+            if (this.zoom.toggle !== 0) {
                 this.zoom.baseRatio += this.zoom.toggle * 0.01
                 this.zoom.baseRatio = clamp(this.zoom.baseRatio, 0, 1)
             }
@@ -696,7 +663,7 @@ export class View
             const zoomSpeedRatio = smoothstep(focusPointSpeed, this.zoom.speedEdge.min, this.zoom.speedEdge.max)
             this.zoom.ratio = this.zoom.baseRatio
 
-            if(this.focusPoint.isTracking && this.game.quality.level === 0)
+            if (this.focusPoint.isTracking && this.game.quality.level === 0)
                 this.zoom.ratio += this.zoom.speedAmplitude * zoomSpeedRatio
 
             this.zoom.smoothedRatio = lerp(this.zoom.smoothedRatio, this.zoom.ratio, this.game.ticker.delta * 10)
@@ -705,6 +672,22 @@ export class View
         // Radius
         const radiusMax = this.spherical.radius.edges.max + this.ratioOverflow * this.spherical.radius.nonIdealRatioOffset
         this.spherical.radius.current = lerp(this.spherical.radius.edges.min, radiusMax, 1 - this.zoom.smoothedRatio)
+
+        if (this.mode === View.MODE_THIRD_PERSON) {
+            const targetPhi = Math.PI * 0.40;
+            this.spherical.phi = lerp(this.spherical.phi, targetPhi, this.game.ticker.delta * 5);
+
+            const forward = this.game.physicalVehicle.forward;
+            const targetTheta = Math.atan2(-forward.x, -forward.z);
+            this.spherical.theta += smallestAngle(this.spherical.theta, targetTheta) * this.game.ticker.delta * 5;
+        }
+        else {
+            const targetPhi = Math.PI * (this.game.quality.level === 0 ? 0.31 : 0.27);
+            const targetTheta = Math.PI * 0.25;
+            this.spherical.phi = lerp(this.spherical.phi, targetPhi, this.game.ticker.delta * 5);
+            this.spherical.theta += smallestAngle(this.spherical.theta, targetTheta) * this.game.ticker.delta * 5;
+        }
+
         this.spherical.offset.setFromSphericalCoords(this.spherical.radius.current, this.spherical.phi, this.spherical.theta)
 
         // Position
@@ -725,8 +708,7 @@ export class View
         this.defaultCamera.rotation.z += this.roll.value
 
         // Cinematic
-        if(this.cinematic.progress > 0)
-        {
+        if (this.cinematic.progress > 0) {
             this.cinematic.dummy.position.copy(this.cinematic.position)
             this.cinematic.dummy.lookAt(this.cinematic.target)
             this.defaultCamera.position.lerp(this.cinematic.dummy.position, this.cinematic.progress)
@@ -734,13 +716,11 @@ export class View
         }
 
         // Apply to final camera
-        if(this.mode === View.MODE_DEFAULT)
-        {
+        if (this.mode === View.MODE_DEFAULT || this.mode === View.MODE_THIRD_PERSON) {
             this.camera.position.copy(this.defaultCamera.position)
             this.camera.quaternion.copy(this.defaultCamera.quaternion)
         }
-        else if(this.mode === View.MODE_FREE)
-        {
+        else if (this.mode === View.MODE_FREE) {
             this.freeMode.update(this.game.ticker.delta)
             this.camera.position.copy(this.freeCamera.position)
             this.camera.quaternion.copy(this.freeCamera.quaternion)
@@ -750,24 +730,22 @@ export class View
         this.camera.updateMatrixWorld()
         this.defaultCamera.updateMatrixWorld()
         this.freeCamera.updateMatrixWorld()
-        
+
         // Optimal area
-        if(this.optimalArea.needsUpdate)
+        if (this.optimalArea.needsUpdate)
             this.optimalArea.update()
-        
+
         this.optimalArea.position
             .copy(this.optimalArea.basePosition)
             .add(new THREE.Vector3(this.focusPoint.smoothedPosition.x, 0, this.focusPoint.smoothedPosition.z))
 
-        for(const point of this.optimalArea.quad2)
-        {
+        for (const point of this.optimalArea.quad2) {
             point.offseted.x = point.base.x + this.focusPoint.position.x
             point.offseted.y = point.base.y + this.focusPoint.position.z
         }
 
         // Helper
-        if(this.optimalArea.quad2Helper && this.optimalArea.quad2Helper.visible)
-        {
+        if (this.optimalArea.quad2Helper && this.optimalArea.quad2Helper.visible) {
             const geometry = new LineGeometry()
             geometry.setPositions([
                 this.optimalArea.quad2[0].offseted.x, 0.5, this.optimalArea.quad2[0].offseted.y,
