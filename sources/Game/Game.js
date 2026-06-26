@@ -48,6 +48,7 @@ import { PreRenderer } from './PreRenderer.js'
 import { Options } from './Options.js'
 import gsap from 'gsap'
 import { Map } from './Map.js'
+import { Multiplayer } from './Multiplayer.js'
 
 export class Game
 {
@@ -197,6 +198,7 @@ export class Game
         this.title = new Title()
         // this.monitoring = new Monitoring()
         this.world.step(1)
+        this.multiplayer = new Multiplayer()
         this.overlay = new Overlay()
 
         // Pre-render if quality high

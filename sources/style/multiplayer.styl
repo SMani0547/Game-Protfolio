@@ -1,0 +1,253 @@
+.multiplayer-trigger
+    display none
+    position absolute
+    right 0
+    top 120px
+    width 44px
+    height 44px
+    z-index 9
+    -webkit-user-select none
+    -moz-user-select none
+    user-select none
+
+    html.is-started &
+        display block
+
+    html.input-filter-menu &
+    html.input-filter-modal &
+    html.input-filter-cinematic &
+    html.input-filter-intro &
+        pointer-events none
+
+    --hover-translate 4px
+
+    html:not(.is-mode-touch) &:hover
+        .button-inner
+            transform translateX(-4px)
+
+            &::after
+                opacity 0.8
+
+            .icon-container
+                opacity 1
+
+    .button-inner
+        position absolute
+        top 0
+        left 0
+        width calc(100% + var(--hover-translate))
+        height 100%
+        background radial-gradient(ellipse at top right, #C21515, #46123B)
+        transition transform 0.15s 0.15s
+
+        html.input-filter-menu &,
+        html.input-filter-modal &,
+        html.input-filter-intro &,
+        html.input-filter-cinematic &
+            transform translateX(100%)
+            transition-delay 0
+
+        &::after
+            content: ''
+            display block
+            position absolute
+            top 3px
+            right 0
+            bottom 3px
+            left 3px
+            border 1px solid #ffffff
+            border-right none
+            opacity 0.35
+            transition opacity 0.15s
+
+        .icon-container
+            display flex
+            position absolute
+            align-items center
+            justify-content center
+            top 0
+            right 0
+            bottom 0
+            left 3px
+
+            img
+                width 28px
+                height 28px
+
+.multiplayer-name-tags
+    position absolute
+    top 0
+    left 0
+    width 100%
+    height 100%
+    pointer-events none
+    z-index 8
+
+    .tag
+        position absolute
+        display none
+        max-width 160px
+        padding 4px 9px
+        border 1px solid alpha(#ffffff, 0.45)
+        border-radius 8px
+        color #ffffff
+        background alpha(#1d1721, 0.82)
+        font-size 0.72rem
+        font-weight 700
+        white-space nowrap
+        overflow hidden
+        text-overflow ellipsis
+        transform translate(-50%, -100%)
+        box-shadow 0 4px 16px alpha(#000000, 0.25)
+
+        &.is-visible
+            display block
+
+.multiplayer
+    .container
+        width 520px
+        max-width calc(100vw - 30px)
+
+    .content
+        min-height 520px
+
+        > .title
+            padding-right 55px
+
+    .multiplayer-form
+        display flex
+        flex-direction column
+        gap 18px
+        margin-top 20px
+
+    .field
+        display flex
+        flex-direction column
+        gap 8px
+
+        .label
+            color #ffceca
+            font-size 0.75rem
+            font-weight 700
+            letter-spacing 0
+            text-transform uppercase
+
+    .input-text
+        width 100%
+        height 50px
+        padding 0 14px
+        border 1px solid alpha(#ffffff, 0.35)
+        border-radius 8px
+        color #ffffff
+        background alpha(#ffffff, 0.04)
+
+        &::placeholder
+            color alpha(#ffffff, 0.4)
+
+        &:focus
+            border-color #ffceca
+
+        &[readonly]
+            color alpha(#ffffff, 0.75)
+
+    .inline-group
+        display flex
+        gap 8px
+
+        .input-text
+            flex 1
+            min-width 0
+
+        .button
+            flex 0 0 auto
+
+        @media only screen and (max-width 440px)
+            flex-direction column
+
+            .button
+                width 100%
+
+    .horizontal-group
+        justify-content flex-start
+
+        @media only screen and (max-width 520px)
+            align-items stretch
+
+            .button
+                width 100%
+
+    .button
+        display inline-flex
+        align-items center
+        justify-content center
+        height 50px
+        line-height 50px
+        background alpha(#ffffff, 0.03)
+
+        &.is-small
+            min-width 92px
+
+        &.is-disabled
+        &:disabled
+            border-style dashed
+            color alpha(#ffffff, 0.28)
+            cursor default
+
+            html:not(.is-mode-touch) &:hover
+                border-color alpha(#ffffff, 0.8)
+                color alpha(#ffffff, 0.28)
+
+    .multiplayer-status
+        min-height 24px
+        margin-top 18px
+        color alpha(#ffffff, 0.72)
+        font-size 0.85rem
+
+        &.is-success
+            color #d5ff95
+
+        &.is-danger
+            color #ff6a7c
+
+    .multiplayer-players
+        margin-top 18px
+        padding-top 18px
+        border-top 1px solid alpha(#ffffff, 0.18)
+
+        > .label
+            margin-bottom 10px
+            color #ffceca
+            font-size 0.75rem
+            font-weight 700
+            text-transform uppercase
+
+    .players
+        display flex
+        flex-direction column
+        gap 8px
+
+    .player
+        display flex
+        align-items center
+        justify-content space-between
+        gap 12px
+        min-height 42px
+        padding 9px 12px
+        border 1px solid alpha(#ffffff, 0.16)
+        border-radius 8px
+        background alpha(#ffffff, 0.035)
+
+        .name
+            min-width 0
+            overflow hidden
+            text-overflow ellipsis
+            white-space nowrap
+
+        .badge
+            flex 0 0 auto
+            color alpha(#ffffff, 0.58)
+            font-size 0.75rem
+
+    .empty
+        color alpha(#ffffff, 0.48)
+        font-size 0.85rem

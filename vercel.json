@@ -1,0 +1,7 @@
+{
+    "functions": {
+        "api/multiplayer.js": {
+            "maxDuration": 60
+        }
+    }
+}
