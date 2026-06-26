@@ -98,6 +98,15 @@
             </div>
         </button>
 
+        <!-- Multiplayer trigger -->
+        <button class="js-multiplayer-trigger multiplayer-trigger">
+            <div class="button-inner">
+                <div class="icon-container">
+                    <img class="multiplayer-icon" src="ui/multiplayer.svg" loading="lazy">
+                </div>
+            </div>
+        </button>
+
         <!-- Menu -->
         <div class="js-menu menu">
 
@@ -855,6 +864,55 @@
                             </div>
                         </div>
                     
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multiplayer -->
+            <div class="js-modal modal multiplayer" data-name="multiplayer">
+                <div class="container">
+                    <div class="content">
+                        <button class="js-close close">
+                            <img class="icon is-default" src="ui/close.svg" loading="lazy">
+                            <span class="icon is-xbox">A</span>
+                        </button>
+
+                        <div class="title">Multiplayer</div>
+
+                        <form class="js-multiplayer-form multiplayer-form" action="#">
+                            <label class="field">
+                                <span class="label">Your name</span>
+                                <input class="js-multiplayer-name js-main-focus input-text" type="text" placeholder="Player name" maxlength="16" autocomplete="nickname">
+                            </label>
+
+                            <div class="horizontal-group">
+                                <button class="js-multiplayer-create button" type="button">Create room</button>
+                                <button class="js-multiplayer-leave button is-danger" type="button">Leave room</button>
+                            </div>
+
+                            <label class="field">
+                                <span class="label">Room link</span>
+                                <div class="inline-group">
+                                    <input class="js-multiplayer-link input-text" type="text" readonly placeholder="Create or join first">
+                                    <button class="js-multiplayer-copy button is-small" type="button">Copy</button>
+                                </div>
+                            </label>
+
+                            <label class="field">
+                                <span class="label">Join room</span>
+                                <div class="inline-group">
+                                    <input class="js-multiplayer-join input-text" type="text" placeholder="Code or link" maxlength="80">
+                                    <button class="js-multiplayer-join-button button is-small" type="button">Join</button>
+                                </div>
+                            </label>
+                        </form>
+
+                        <div class="js-multiplayer-status multiplayer-status">Enter your name to create or join a room.</div>
+
+                        <div class="multiplayer-players">
+                            <div class="label">Players</div>
+                            <div class="js-multiplayer-players players"></div>
+                        </div>
                     </div>
                 </div>
             </div>
