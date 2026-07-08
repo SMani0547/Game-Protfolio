@@ -120,17 +120,25 @@ export class AchievementsArea extends Area
         // Particles
         {
             const reference = this.references.items.get('waterfallParticles')[0]
+            const helperPositions = reference?.geometry?.attributes?.position?.array
+
+            if(!helperPositions || helperPositions.length < 6)
+            {
+                console.warn('[AchievementsArea] Missing waterfallParticles helper geometry, skipping waterfall particles.')
+                return
+            }
+
             reference.removeFromParent()
             
             const origin = new THREE.Vector3(
-                reference.geometry.attributes.position.array[0],
-                reference.geometry.attributes.position.array[1],
-                reference.geometry.attributes.position.array[2]
+                helperPositions[0],
+                helperPositions[1],
+                helperPositions[2]
             )
             const destination = new THREE.Vector3(
-                reference.geometry.attributes.position.array[3],
-                reference.geometry.attributes.position.array[4],
-                reference.geometry.attributes.position.array[5]
+                helperPositions[3],
+                helperPositions[4],
+                helperPositions[5]
             )
             origin.applyMatrix4(reference.matrixWorld)
             destination.applyMatrix4(reference.matrixWorld)
