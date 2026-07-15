@@ -155,7 +155,9 @@ export class CareerArea extends Area
         this.year.originZ = this.year.group.position.z
         this.year.size = 17
         this.year.offsetTarget = 0
-        this.year.start = 2008
+        this.year.start = 2017
+        this.year.end = 2026
+        this.year.totalYears = this.year.end - this.year.start + 1
         this.year.current = this.year.start
 
         //    Digit indexes
@@ -233,7 +235,7 @@ export class CareerArea extends Area
             this.year.digits.push(digit)
         }
 
-        this.year.updateDigits = (year = 2025) =>
+        this.year.updateDigits = (year = this.year.end) =>
         {
             const yearString = `${year}`
             let i = 0
@@ -365,7 +367,9 @@ export class CareerArea extends Area
         const finalPositionZ = this.year.originZ - this.year.offsetTarget
         this.year.group.position.z += (finalPositionZ - this.year.group.position.z) * this.game.ticker.deltaScaled * 10
 
-        const yearCurrent = this.year.start + Math.floor(this.year.offsetTarget)
+        const yearProgress = this.year.size === 0 ? 0 : this.year.offsetTarget / this.year.size
+        const yearIndex = Math.min(this.year.totalYears - 1, Math.floor(yearProgress * this.year.totalYears))
+        const yearCurrent = this.year.start + yearIndex
 
         if(yearCurrent !== this.year.current)
         {
