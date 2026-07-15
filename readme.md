@@ -1,4 +1,4 @@
-# Folio 2025 
+# Folio 2026 
 
 ![image info](./static/social/share-image.png)
 
