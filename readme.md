@@ -191,7 +191,7 @@ The backend would power:
 
 Read the full backend plan here:
 
-[SERVER_BACKEND_SPEC.md](./SERVER_BACKEND_SPEC.md)
+[SERVER_BACKEND_SPEC.md](./SERVER_BACKEND.md)
 
 ## Multiplayer Status
 
@@ -254,3 +254,7 @@ Compression process:
 This project is based on the public portfolio source and is intended as a personal creative portfolio project.
 
 Check `LICENSE` for repository license details.
+
+## Author
+
+Shiva Mani Goundar (SMG)
