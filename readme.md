@@ -26,6 +26,8 @@
   <a href="#setup">Setup</a>
   |
   <a href="#backend-server">Backend</a>
+  |
+  <a href="./SERVER_BACKEND_SPEC.md">Server Spec</a>
 </p>
 
 ---
