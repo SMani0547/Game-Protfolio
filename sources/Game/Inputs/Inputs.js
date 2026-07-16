@@ -6,6 +6,7 @@ import Keyboard from './Keyboard.js'
 import { InteractiveButtons } from './InteractiveButtons.js'
 import { Wheel } from './Wheel.js'
 import { Nipple } from './Nipple.js'
+import { LandscapeControls } from './LandscapeControls.js'
 import ObservableSet from '../utilities/ObservableSet.js'
 
 export class Inputs
@@ -46,6 +47,7 @@ export class Inputs
         this.setWheel()
         this.setInteractiveButtons()
         this.setNipple()
+        this.setLandscapeControls()
 
         this.addActions(actions)
         
@@ -164,6 +166,11 @@ export class Inputs
                 
             this.nipple.updateFromPointer(this.pointer, action)
         })
+    }
+
+    setLandscapeControls()
+    {
+        this.landscapeControls = new LandscapeControls(this)
     }
 
     addActions(actions)
@@ -330,5 +337,6 @@ export class Inputs
         this.pointer.update()
         this.gamepad.update()
         this.nipple.update()
+        this.landscapeControls.update()
     }
 }

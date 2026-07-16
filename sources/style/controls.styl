@@ -19,6 +19,18 @@
                 text-align right
                 padding-right 15px
 
+            &.section-row
+                td
+                    padding-top 8px
+                    padding-right 0
+                    text-align center
+                    color #ffceca
+                    font-weight 900
+                    letter-spacing 0.04em
+
+                    @media only screen and (max-height 540px)
+                        padding-top 4px
+
         .key
             display inline-block
             padding 0 4px
@@ -38,6 +50,7 @@
             &.is-playstation
                 .is-gamepad-default &
                 .is-gamepad-playstation &
+                .touch &
                     display inline-block
 
             &.is-xbox

@@ -89,7 +89,7 @@ export class View {
         }
 
         this.game.inputs.addActions([
-            { name: 'cameraToggle', categories: ['wandering', 'racing'], keys: ['Keyboard.KeyC', 'Gamepad.select'] }
+            { name: 'cameraToggle', categories: ['wandering', 'racing'], keys: ['Keyboard.KeyC', 'Gamepad.select', 'Touch.camera'] }
         ])
 
         this.game.inputs.events.on('cameraToggle', (action) => {
