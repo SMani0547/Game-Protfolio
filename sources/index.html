@@ -76,6 +76,48 @@
             </div>
         </div>
 
+        <!-- Landscape controls -->
+        <div class="js-landscape-controls landscape-controls" aria-hidden="true">
+            <div class="js-landscape-joystick joystick">
+                <div class="base">
+                    <div class="ring"></div>
+                    <div class="axis horizontal"></div>
+                    <div class="axis vertical"></div>
+                    <div class="js-landscape-joystick-stick stick"></div>
+                </div>
+            </div>
+
+            <div class="utility-left">
+                <button class="js-landscape-button action utility camera" data-action="camera" aria-label="Switch camera">
+                    <img src="ui/controls/camera.svg" loading="lazy" draggable="false" alt="">
+                </button>
+                <button class="js-landscape-button action utility respawn" data-action="respawn" aria-label="Respawn">
+                    <img src="ui/controls/respawn.svg" loading="lazy" draggable="false" alt="">
+                </button>
+            </div>
+
+            <div class="utility-right">
+                <button class="js-landscape-button action utility honk" data-action="honk" aria-label="Honk">
+                    <img src="ui/controls/honk.svg" loading="lazy" draggable="false" alt="">
+                </button>
+            </div>
+
+            <div class="actions">
+                <button class="js-landscape-button action boost" data-action="boost" aria-label="Boost">
+                    <img src="ui/controls/gamepad-circle.webp" loading="lazy" draggable="false" alt="">
+                </button>
+                <button class="js-landscape-button action brake" data-action="brake" aria-label="Brake">
+                    <img src="ui/controls/gamepad-square.webp" loading="lazy" draggable="false" alt="">
+                </button>
+                <button class="js-landscape-button action jump" data-action="suspensions" aria-label="Jump">
+                    <img src="ui/controls/gamepad-triangle.webp" loading="lazy" draggable="false" alt="">
+                </button>
+                <button class="js-landscape-button action interact" data-action="interact" aria-label="Interact">
+                    <img src="ui/controls/gamepad-cross.webp" loading="lazy" draggable="false" alt="">
+                </button>
+            </div>
+        </div>
+
         <!-- Menu trigger -->
         <button class="js-menu-trigger menu-trigger">
             <div class="button-inner">
@@ -398,6 +440,10 @@
                                                             <td>Move camera</td>
                                                         </tr>
                                                         <tr>
+                                                            <td><span class="key">C</span></td>
+                                                            <td>Switch camera</td>
+                                                        </tr>
+                                                        <tr>
                                                             <td><span class="key">H</span></td>
                                                             <td>Honk</td>
                                                         </tr>
@@ -411,6 +457,9 @@
                                             <div class="js-tabs-content-inner list">
                                                 <table>
                                                     <tbody>
+                                                        <tr class="section-row">
+                                                            <td colspan="2">Portrait</td>
+                                                        </tr>
                                                         <tr>
                                                             <td><span class="key">One finger</span></td>
                                                             <td>Move the car</td>
@@ -422,6 +471,41 @@
                                                         <tr>
                                                             <td><span class="key">Tap (on the car)</span></td>
                                                             <td>Jump</td>
+                                                        </tr>
+                                                        <tr class="section-row">
+                                                            <td colspan="2">Landscape</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="key">Left joystick</span></td>
+                                                            <td>Drive / steer</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="is-gamepad-button is-playstation is-icon circle"></span></td>
+                                                            <td>Boost</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="is-gamepad-button is-playstation is-icon square"></span></td>
+                                                            <td>Brake</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="is-gamepad-button is-playstation is-icon triangle"></span></td>
+                                                            <td>Jump</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="is-gamepad-button is-playstation is-icon cross"></span></td>
+                                                            <td>Interact</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="key">Camera</span></td>
+                                                            <td>Switch camera</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="key">Horn</span></td>
+                                                            <td>Honk</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><span class="key">Respawn</span></td>
+                                                            <td>Return to road</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -501,7 +585,7 @@
                                                         </tr>
                                                         <tr>
                                                             <td><span class="key">Select</span></td>
-                                                            <td>Reset</td>
+                                                            <td>Switch camera / respawn</td>
                                                         </tr>
                                                         <tr>
                                                             <td><span class="key">Start</span></td>

@@ -1,0 +1,211 @@
+.landscape-controls
+    display none
+    position absolute
+    inset 0
+    z-index 8
+    pointer-events none
+    -webkit-user-select none
+    -moz-user-select none
+    user-select none
+    touch-action none
+
+    html.is-started.is-mode-touch:not(.input-filter-menu):not(.input-filter-modal):not(.input-filter-intro):not(.input-filter-cinematic) &
+        @media only screen and (orientation landscape) and (pointer coarse) and (max-height 560px)
+            display block
+
+    .joystick
+        position absolute
+        left 24px
+        bottom 22px
+        width clamp(116px, 24vmin, 166px)
+        aspect-ratio 1
+        pointer-events auto
+
+        .base
+            position absolute
+            inset 0
+            border-radius 50%
+            background radial-gradient(circle at 50% 50%, alpha(#ffffff, 0.08), alpha(#13e8ff, 0.12) 42%, alpha(#12101a, 0.42) 70%, alpha(#12101a, 0.18))
+            border 1px solid alpha(#dffcff, 0.44)
+            box-shadow 0 0 20px alpha(#16eaff, 0.18), inset 0 0 26px alpha(#ffffff, 0.08)
+
+        .ring
+            position absolute
+            inset 24%
+            border-radius 50%
+            border 1px solid alpha(#ffffff, 0.42)
+            box-shadow 0 0 16px alpha(#18eaff, 0.26)
+
+        .axis
+            position absolute
+            left 50%
+            top 50%
+            background alpha(#ffffff, 0.25)
+            transform translate(-50%, -50%)
+
+            &.horizontal
+                width 68%
+                height 1px
+
+            &.vertical
+                width 1px
+                height 68%
+
+        .stick
+            position absolute
+            left 50%
+            top 50%
+            width 38%
+            aspect-ratio 1
+            border-radius 50%
+            transform translate(0, 0)
+            translate -50% -50%
+            background radial-gradient(circle, alpha(#ffffff, 0.92), alpha(#7df4ff, 0.78) 40%, alpha(#128fff, 0.34))
+            border 1px solid alpha(#ffffff, 0.72)
+            box-shadow 0 0 18px alpha(#6ff8ff, 0.48)
+            transition transform 0.08s ease-out
+
+    .utility-left
+        position absolute
+        left 18px
+        top 18px
+        display flex
+        gap 10px
+        pointer-events auto
+
+        .action
+            width 44px
+            height 44px
+            min-width 44px
+            min-height 44px
+
+    .utility-right
+        position absolute
+        right 8px
+        top 170px
+        width 44px
+        height 44px
+        pointer-events auto
+
+        .action
+            width 44px
+            height 44px
+            min-width 44px
+            min-height 44px
+            border-radius 50%
+
+    .actions
+        position absolute
+        right 86px
+        bottom 16px
+        width 140px
+        height 122px
+        pointer-events auto
+
+        .action
+            position absolute
+            width 44px
+            height 44px
+            min-width 44px
+            min-height 44px
+
+    .action
+        display flex
+        align-items center
+        justify-content center
+        position relative
+        width 100%
+        height 100%
+        min-width 0
+        min-height 0
+        padding 0
+        box-sizing border-box
+        appearance none
+        -webkit-appearance none
+        border-radius 50%
+        border 1px solid alpha(#ffffff, 0.46)
+        color alpha(#ffffff, 0.86)
+        background radial-gradient(circle at 50% 35%, alpha(#ffffff, 0.16), alpha(#1cf0ff, 0.14) 44%, alpha(#17111d, 0.48))
+        box-shadow 0 0 16px alpha(#1cf0ff, 0.15), inset 0 0 14px alpha(#ffffff, 0.08)
+        font-size clamp(18px, 4vmin, 28px)
+        font-weight 900
+        line-height 1
+        pointer-events auto
+        touch-action none
+
+        &.jump
+            left 50%
+            top 0
+            transform translateX(-50%)
+
+        &.brake
+            left 0
+            top 50%
+            transform translateY(-50%)
+
+        &.boost
+            right 0
+            top 50%
+            transform translateY(-50%)
+
+        &.interact
+            left 50%
+            bottom 0
+            transform translateX(-50%)
+
+        &.is-pressed
+            border-color alpha(#ffffff, 0.86)
+            background radial-gradient(circle at 50% 35%, alpha(#ffffff, 0.4), alpha(#1cf0ff, 0.32) 44%, alpha(#17111d, 0.5))
+            box-shadow 0 0 24px alpha(#65f8ff, 0.42), inset 0 0 16px alpha(#ffffff, 0.18)
+
+            &.jump
+            &.interact
+                transform translateX(-50%) scale(0.92)
+
+            &.brake
+            &.boost
+                transform translateY(-50%) scale(0.92)
+
+            &.utility
+                transform scale(0.92)
+
+        img
+            display block
+            width 52%
+            height 52%
+            object-fit contain
+            pointer-events none
+
+        &.utility img
+            width 58%
+            height 58%
+
+    @media only screen and (max-height 460px)
+        .joystick
+            left 20px
+            bottom 16px
+            width 120px
+
+        .actions
+            right 78px
+            bottom 12px
+            width 128px
+            height 108px
+
+            .action
+                width 40px
+                height 40px
+                min-width 40px
+                min-height 40px
+
+    @media only screen and (max-width 820px)
+        .actions
+            right 74px
+
+html.is-started.is-mode-touch:not(.input-filter-menu):not(.input-filter-modal):not(.input-filter-intro):not(.input-filter-cinematic) .touch-buttons
+    @media only screen and (orientation landscape) and (pointer coarse) and (max-height 560px)
+        display none
+
+html.is-landscape-controls .touch-buttons
+    display none !important
+    pointer-events none !important
