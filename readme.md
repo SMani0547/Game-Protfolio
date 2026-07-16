@@ -1,36 +1,25 @@
-# Shiva Mani Goundar Portfolio 2025
+# Portfolio 2026 
 
-<p align="center">
-  <img src="./static/social/share-image.png" alt="Shiva Mani Goundar Portfolio 2025 preview" width="100%" />
-</p>
+![image info](./static/social/share-image.png)
 
-<p align="center">
-  <strong>An interactive 3D game portfolio built with Three.js, WebGPU, Rapier physics, custom Blender assets, music, UI systems, and a drivable world.</strong>
-</p>
+## Setup
 
-<p align="center">
-  <img alt="Three.js" src="https://img.shields.io/badge/Three.js-183-black?style=for-the-badge&logo=three.js&logoColor=white">
-  <img alt="WebGPU" src="https://img.shields.io/badge/WebGPU-Ready-4361ee?style=for-the-badge">
-  <img alt="Rapier" src="https://img.shields.io/badge/Rapier-Physics-ff7a18?style=for-the-badge">
-  <img alt="Vite" src="https://img.shields.io/badge/Vite-Build-646cff?style=for-the-badge&logo=vite&logoColor=white">
-  <img alt="Blender" src="https://img.shields.io/badge/Blender-Assets-f5792a?style=for-the-badge&logo=blender&logoColor=white">
-</p>
+Create `.env` file based on `.env.example`
 
-<p align="center">
-  <a href="#features">Features</a>
-  |
-  <a href="#planned-features-and-upgrades">Planned Features</a>
-  |
-  <a href="#technology-stack">Stack</a>
-  |
-  <a href="#setup">Setup</a>
-  |
-  <a href="#backend-server">Backend</a>
-</p>
+Download and install [Node.js](https://nodejs.org/en/download/) then run this followed commands:
 
----
+``` bash
+# Install dependencies
+npm install --force
 
-## Overview
+# Serve at localhost:1234
+npm run dev
+
+# Serve at localhost:1234
+npm run dev
+
+# Build for production in the dist/ directory
+npm run build
 
 This is a portfolio presented as a playable 3D world. Instead of scrolling through a normal website, visitors drive around the map, discover sections, interact with areas, listen to music, unlock achievements, and explore projects through a game-like experience.
 
@@ -101,6 +90,7 @@ flowchart LR
     E --> F[Tap or press start]
     F --> G[Reveal playable world]
     G --> H[Drive, explore, interact]
+```
 ```
 
 The portfolio loads an initial scene first, then loads the rest of the world. Once the intro is ready, the player can start driving and exploring.
@@ -251,4 +241,6 @@ Compression process:
 
 This project is based on the public portfolio source and is intended as a personal creative portfolio project.
 
-Check `LICENSE` for repository license details.
+- https://gltf-transform.dev/cli
+- https://github.com/KhronosGroup/KTX-Software?tab=readme-ov-file
+- https://github.khronos.org/KTX-Software/ktxtools/toktx.html
