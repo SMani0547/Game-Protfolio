@@ -15,8 +15,82 @@ npm install --force
 # Serve at localhost:1234
 npm run dev
 
+# Serve at localhost:1234
+npm run dev
+
 # Build for production in the dist/ directory
 npm run build
+
+This is a portfolio presented as a playable 3D world. Instead of scrolling through a normal website, visitors drive around the map, discover sections, interact with areas, listen to music, unlock achievements, and explore projects through a game-like experience.
+
+The project is based on a full Three.js world with physics, custom GLB assets, compressed textures, interactive UI, audio systems, touch/gamepad/keyboard controls, and experimental multiplayer presence.
+
+## Features
+
+- Drivable vehicle with physics, suspension, boost, honk, respawn, and camera controls.
+- Large handcrafted 3D map exported from Blender and loaded as GLB assets.
+- Interactive portfolio areas for projects, career, lab work, socials, achievements, map, whispers, and circuit racing.
+- WebGPU-first rendering with WebGL fallback behavior from Three.js.
+- Rapier-powered physics for vehicle movement, world interactions, objects, crates, bowling, and collisions.
+- Day, night, weather, wind, rain, snow, lightning, fog, water, particles, trails, and other world effects.
+- Menu system with options, controls, achievements, music, map, and behind-the-scenes information.
+- Mobile, keyboard, mouse, and gamepad support.
+- Landscape mobile controls with joystick and console-style action buttons.
+- Experimental room-based multiplayer presence with shared ghost car projection.
+- Hologram name display at the landing area.
+- Loading note for first boot while the 3D world initializes.
+
+## Planned Features And Upgrades
+
+These are planned ideas and upgrade targets for future versions.
+
+| Area | Planned Upgrade |
+| --- | --- |
+| Vehicles | Add two new playable vehicles: a jet and a mech. |
+| Combat Sandbox | Add arcade-style guns for fun shooting, object breaking, and destruction experiments. |
+| Native Mobile | Package the game as a native Android app using Capacitor and target Play Store release. |
+| Backend Server | Build the missing shared WebSocket backend for whispers, leaderboard scores, counters, and online events. |
+| Real Multiplayer | Upgrade from the current ghost projection system to proper multiplayer with shared world state and player interaction. |
+| Music | Expand the music playlist into a larger catalog with more tracks and better playlist controls. |
+| Voice Chat | Add multiplayer audio chat with mic toggle, room voice channels, and basic mute controls. |
+| PWA / Offline Mode | Add installable web app support with cached core assets and an offline-friendly demo mode. |
+| Admin Tools | Add a moderation panel for backend features like whispers, scores, multiplayer rooms, and reports. |
+
+## Technology Stack
+
+<p align="center">
+  <img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-ESM-f7df1e?style=flat-square&logo=javascript&logoColor=111">
+  <img alt="Three.js" src="https://img.shields.io/badge/Three.js-3D-black?style=flat-square&logo=three.js&logoColor=white">
+  <img alt="WebGPU" src="https://img.shields.io/badge/WebGPU-Renderer-4361ee?style=flat-square">
+  <img alt="Rapier" src="https://img.shields.io/badge/Rapier-Physics-ff7a18?style=flat-square">
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-Dev_Server-646cff?style=flat-square&logo=vite&logoColor=white">
+  <img alt="Blender" src="https://img.shields.io/badge/Blender-3D_Assets-f5792a?style=flat-square&logo=blender&logoColor=white">
+</p>
+
+| Layer | Technology |
+| --- | --- |
+| Rendering | Three.js WebGPU renderer |
+| Physics | Rapier 3D |
+| Build Tool | Vite |
+| Animation | GSAP |
+| Audio | Howler.js |
+| Assets | Blender, GLB, Draco, KTX, WebP |
+| Styling | Stylus |
+| Multiplayer Presence | Vercel API route with JSON/SSE-style updates |
+| Shared Server Target | Separate WebSocket backend using msgpack |
+
+## How It Works
+
+```mermaid
+flowchart LR
+    A[Open portfolio] --> B[Load core assets]
+    B --> C[Show intro ring]
+    C --> D[Load world assets]
+    D --> E[Initialize physics and systems]
+    E --> F[Tap or press start]
+    F --> G[Reveal playable world]
+    G --> H[Drive, explore, interact]
+```
 ```
 
 The portfolio loads an initial scene first, then loads the rest of the world. Once the intro is ready, the player can start driving and exploring.
