@@ -40,7 +40,7 @@ export class LandscapeControls
 
         const html = document.documentElement
 
-        if(!html.classList.contains('is-mode-touch') || !html.classList.contains('is-started'))
+        if(this.inputs.mode !== 3 || !html.classList.contains('is-started'))
             return false
 
         if(
@@ -240,6 +240,18 @@ export class LandscapeControls
 
         if(this.enabled && !enabled)
             this.releaseAll()
+
+        document.documentElement.classList.toggle('is-landscape-controls', enabled)
+
+        if(enabled)
+        {
+            this.inputs.interactiveButtons.deactivate()
+            this.inputs.nipple.cancel()
+        }
+        else if(this.enabled && this.inputs.mode === 3)
+        {
+            this.inputs.interactiveButtons.activate()
+        }
 
         this.enabled = enabled
     }

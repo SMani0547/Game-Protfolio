@@ -302,7 +302,7 @@ export class Player
 
         this.game.inputs.events.on('suspensions', () =>
         {
-            if(this.game.inputs.mode === Inputs.MODE_TOUCH)
+            if(this.game.inputs.mode === Inputs.MODE_TOUCH && !this.game.inputs.landscapeControls?.enabled)
                 this.game.inputs.nipple.jump()
         })
 

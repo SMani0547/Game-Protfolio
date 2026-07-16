@@ -163,6 +163,9 @@ export class Inputs
         {
             if(this.mode !== Inputs.MODE_TOUCH)
                 return
+
+            if(this.landscapeControls?.enabled)
+                return
                 
             this.nipple.updateFromPointer(this.pointer, action)
         })
@@ -314,7 +317,7 @@ export class Inputs
         const oldMode = this.mode
         this.mode = mode
         
-        if(this.mode === Inputs.MODE_TOUCH)
+        if(this.mode === Inputs.MODE_TOUCH && !this.landscapeControls?.shouldBeEnabled())
             this.interactiveButtons.activate()
         else
             this.interactiveButtons.deactivate()
@@ -336,7 +339,11 @@ export class Inputs
     {
         this.pointer.update()
         this.gamepad.update()
-        this.nipple.update()
         this.landscapeControls.update()
+
+        if(this.landscapeControls.enabled)
+            this.nipple.cancel()
+        else
+            this.nipple.update()
     }
 }

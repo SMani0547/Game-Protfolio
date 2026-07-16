@@ -228,6 +228,18 @@ export class Nipple
         )
     }
 
+    cancel()
+    {
+        this.active = false
+        this.animated = false
+        this.inRadiusLow = false
+        this.progress = 0
+        this.group.visible = false
+
+        gsap.killTweensOf(this.mesh.position)
+        this.mesh.position.y = 0
+    }
+
     update()
     {
         if(this.active || this.animated)
