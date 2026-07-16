@@ -1,25 +1,36 @@
-# Portfolio 2026 
+# Shiva Mani Goundar Portfolio 2026
 
-![image info](./static/social/share-image.png)
+<p align="center">
+  <img src="./static/social/share-image.png" alt="Shiva Mani Goundar Portfolio 2026 preview" width="100%" />
+</p>
 
-## Setup
+<p align="center">
+  <strong>An interactive 3D game portfolio built with Three.js, WebGPU, Rapier physics, custom Blender assets, music, UI systems, and a drivable world.</strong>
+</p>
 
-Create `.env` file based on `.env.example`
+<p align="center">
+  <img alt="Three.js" src="https://img.shields.io/badge/Three.js-183-black?style=for-the-badge&logo=three.js&logoColor=white">
+  <img alt="WebGPU" src="https://img.shields.io/badge/WebGPU-Ready-4361ee?style=for-the-badge">
+  <img alt="Rapier" src="https://img.shields.io/badge/Rapier-Physics-ff7a18?style=for-the-badge">
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-Build-646cff?style=for-the-badge&logo=vite&logoColor=white">
+  <img alt="Blender" src="https://img.shields.io/badge/Blender-Assets-f5792a?style=for-the-badge&logo=blender&logoColor=white">
+</p>
 
-Download and install [Node.js](https://nodejs.org/en/download/) then run this followed commands:
+<p align="center">
+  <a href="#features">Features</a>
+  |
+  <a href="#planned-features-and-upgrades">Planned Features</a>
+  |
+  <a href="#technology-stack">Stack</a>
+  |
+  <a href="#setup">Setup</a>
+  |
+  <a href="#backend-server">Backend</a>
+</p>
 
-``` bash
-# Install dependencies
-npm install --force
+---
 
-# Serve at localhost:1234
-npm run dev
-
-# Serve at localhost:1234
-npm run dev
-
-# Build for production in the dist/ directory
-npm run build
+## Overview
 
 This is a portfolio presented as a playable 3D world. Instead of scrolling through a normal website, visitors drive around the map, discover sections, interact with areas, listen to music, unlock achievements, and explore projects through a game-like experience.
 
@@ -44,17 +55,17 @@ The project is based on a full Three.js world with physics, custom GLB assets, c
 
 These are planned ideas and upgrade targets for future versions.
 
-| Area | Planned Upgrade |
-| --- | --- |
-| Vehicles | Add two new playable vehicles: a jet and a mech. |
-| Combat Sandbox | Add arcade-style guns for fun shooting, object breaking, and destruction experiments. |
-| Native Mobile | Package the game as a native Android app using Capacitor and target Play Store release. |
-| Backend Server | Build the missing shared WebSocket backend for whispers, leaderboard scores, counters, and online events. |
-| Real Multiplayer | Upgrade from the current ghost projection system to proper multiplayer with shared world state and player interaction. |
-| Music | Expand the music playlist into a larger catalog with more tracks and better playlist controls. |
-| Voice Chat | Add multiplayer audio chat with mic toggle, room voice channels, and basic mute controls. |
-| PWA / Offline Mode | Add installable web app support with cached core assets and an offline-friendly demo mode. |
-| Admin Tools | Add a moderation panel for backend features like whispers, scores, multiplayer rooms, and reports. |
+| Area               | Planned Upgrade                                                                                                        |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Vehicles           | Add two new playable vehicles: a jet and a mech.                                                                       |
+| Combat Sandbox     | Add arcade-style guns for fun shooting, object breaking, and destruction experiments.                                  |
+| Native Mobile      | Package the game as a native Android app using Capacitor and target Play Store release.                                |
+| Backend Server     | Build the missing shared WebSocket backend for whispers, leaderboard scores, counters, and online events.              |
+| Real Multiplayer   | Upgrade from the current ghost projection system to proper multiplayer with shared world state and player interaction. |
+| Music              | Expand the music playlist into a larger catalog with more tracks and better playlist controls.                         |
+| Voice Chat         | Add multiplayer audio chat with mic toggle, room voice channels, and basic mute controls.                              |
+| PWA / Offline Mode | Add installable web app support with cached core assets and an offline-friendly demo mode.                             |
+| Admin Tools        | Add a moderation panel for backend features like whispers, scores, multiplayer rooms, and reports.                     |
 
 ## Technology Stack
 
@@ -67,17 +78,17 @@ These are planned ideas and upgrade targets for future versions.
   <img alt="Blender" src="https://img.shields.io/badge/Blender-3D_Assets-f5792a?style=flat-square&logo=blender&logoColor=white">
 </p>
 
-| Layer | Technology |
-| --- | --- |
-| Rendering | Three.js WebGPU renderer |
-| Physics | Rapier 3D |
-| Build Tool | Vite |
-| Animation | GSAP |
-| Audio | Howler.js |
-| Assets | Blender, GLB, Draco, KTX, WebP |
-| Styling | Stylus |
+| Layer                | Technology                                   |
+| -------------------- | -------------------------------------------- |
+| Rendering            | Three.js WebGPU renderer                     |
+| Physics              | Rapier 3D                                    |
+| Build Tool           | Vite                                         |
+| Animation            | GSAP                                         |
+| Audio                | Howler.js                                    |
+| Assets               | Blender, GLB, Draco, KTX, WebP               |
+| Styling              | Stylus                                       |
 | Multiplayer Presence | Vercel API route with JSON/SSE-style updates |
-| Shared Server Target | Separate WebSocket backend using msgpack |
+| Shared Server Target | Separate WebSocket backend using msgpack     |
 
 ## How It Works
 
@@ -90,7 +101,6 @@ flowchart LR
     E --> F[Tap or press start]
     F --> G[Reveal playable world]
     G --> H[Drive, explore, interact]
-```
 ```
 
 The portfolio loads an initial scene first, then loads the rest of the world. Once the intro is ready, the player can start driving and exploring.
@@ -222,13 +232,13 @@ Compression process:
 
 ## Controls
 
-| Device | Controls |
-| --- | --- |
-| Keyboard | WASD or arrows, Shift boost, Space jump, H honk, R respawn, C camera |
-| Mouse | Drag to move camera, click/tap interactive points |
-| Mobile Portrait | Touch driving and tap controls |
-| Mobile Landscape | Joystick plus action buttons |
-| Gamepad | Driving, boost, brake, jump, camera, and interact support |
+| Device           | Controls                                                             |
+| ---------------- | -------------------------------------------------------------------- |
+| Keyboard         | WASD or arrows, Shift boost, Space jump, H honk, R respawn, C camera |
+| Mouse            | Drag to move camera, click/tap interactive points                    |
+| Mobile Portrait  | Touch driving and tap controls                                       |
+| Mobile Landscape | Joystick plus action buttons                                         |
+| Gamepad          | Driving, boost, brake, jump, camera, and interact support            |
 
 ## Development Notes
 
@@ -241,6 +251,4 @@ Compression process:
 
 This project is based on the public portfolio source and is intended as a personal creative portfolio project.
 
-- https://gltf-transform.dev/cli
-- https://github.com/KhronosGroup/KTX-Software?tab=readme-ov-file
-- https://github.khronos.org/KTX-Software/ktxtools/toktx.html
+Check `LICENSE` for repository license details.
