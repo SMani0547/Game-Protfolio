@@ -45,26 +45,11 @@ export class InputFlag
         })
 
         // Country code
-        let countryCode = ''
+        let countryCode = 'fj'
 
         const localCountryCode = localStorage.getItem('countryCode')
         if(localCountryCode)
             countryCode = localCountryCode
-
-        if(countryCode === '')
-        {
-            const locale = Intl.DateTimeFormat().resolvedOptions().locale
-            
-            if(locale)
-            {
-                const localeSplit = locale.split('-')
-
-                if(localeSplit.length)
-                {
-                    countryCode = localeSplit[localeSplit.length - 1].toLowerCase()
-                }
-            }
-        }
 
         if(countryCode !== '')
         {
