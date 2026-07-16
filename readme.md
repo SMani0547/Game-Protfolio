@@ -64,6 +64,8 @@ These are planned ideas and upgrade targets for future versions.
 | Real Multiplayer | Upgrade from the current ghost projection system to proper multiplayer with shared world state and player interaction. |
 | Music | Expand the music playlist into a larger catalog with more tracks and better playlist controls. |
 | Voice Chat | Add multiplayer audio chat with mic toggle, room voice channels, and basic mute controls. |
+| PWA / Offline Mode | Add installable web app support with cached core assets and an offline-friendly demo mode. |
+| Admin Tools | Add a moderation panel for backend features like whispers, scores, multiplayer rooms, and reports. |
 
 ## Technology Stack
 
