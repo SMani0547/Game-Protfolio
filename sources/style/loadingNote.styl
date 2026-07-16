@@ -1,0 +1,72 @@
+.loading-note
+    position absolute
+    left 50%
+    bottom 9vh
+    display flex
+    align-items center
+    gap 14px
+    width 520px
+    max-width calc(100vw - 36px)
+    padding 13px 18px 14px
+    color alpha(#ffffff, 0.92)
+    background linear-gradient(135deg, alpha(#1d1721, 0.78), alpha(#251f2b, 0.58))
+    border 1px solid alpha(#ffffff, 0.24)
+    border-radius 8px
+    box-shadow 0 10px 36px alpha(#000000, 0.22), 0 0 24px alpha(#e88eff, 0.12)
+    transform translateX(-50%)
+    pointer-events none
+    z-index 7
+    opacity 1
+    transition opacity 0.45s ease, transform 0.45s ease
+
+    &.is-hidden
+        opacity 0
+        transform translateX(-50%) translateY(10px)
+
+    .loading-note-icon
+        flex 0 0 auto
+        width 28px
+        height 28px
+        border-radius 50%
+        border 2px solid alpha(#ffffff, 0.22)
+        border-top-color #ffffff
+        border-right-color alpha(#e88eff, 0.95)
+        box-shadow 0 0 14px alpha(#e88eff, 0.35)
+        animation loading-note-spin 0.9s linear infinite
+
+    .loading-note-copy
+        min-width 0
+
+    .loading-note-title
+        margin-bottom 2px
+        font-size 17px
+        font-weight 900
+        line-height 1.15
+
+    .loading-note-text
+        color alpha(#ffffff, 0.72)
+        font-size 13px
+        line-height 1.35
+
+@media only screen and (max-width 520px)
+    .loading-note
+        bottom 7vh
+        align-items flex-start
+        padding 12px 14px
+
+        .loading-note-icon
+            width 24px
+            height 24px
+
+        .loading-note-title
+            font-size 15px
+
+        .loading-note-text
+            font-size 12px
+
+@keyframes loading-note-spin
+    from
+        transform rotate(0deg)
+
+    to
+        transform rotate(360deg)

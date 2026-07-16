@@ -73,6 +73,7 @@ export class Game
         // Setup
         this.domElement = document.querySelector('.game')
         this.canvasElement = this.domElement.querySelector('.js-canvas')
+        this.loadingNoteElement = this.domElement.querySelector('.js-loading-note')
         document.documentElement.classList.add('is-started')
 
         // First batch for intro
@@ -207,6 +208,7 @@ export class Game
 
         this.ticker.wait(3, () =>
         {
+            this.loadingNoteElement?.classList.add('is-hidden')
             this.reveal.updateStep(0)
         })
 
