@@ -21,6 +21,7 @@ export class VisualVehicle
         this.setWheels()
         this.setBlinkers()
         this.setBackLights()
+        this.setHeadlights()
         this.setAntenna()
         this.setBoostTrails()
         this.setBoostAnimation()
@@ -56,6 +57,9 @@ export class VisualVehicle
         {
             this.game.tracks.remove(wheel.groundTrack)
         }
+
+        if(this.headlights)
+            this.headlights.group.removeFromParent()
     }
 
     setParts()
@@ -353,6 +357,110 @@ export class VisualVehicle
         this.backLights.material = new THREE.MeshBasicNodeMaterial({ colorNode: vec3(2.2) })
     }
 
+    setHeadlights()
+    {
+        this.headlights = {}
+        this.headlights.modeIndex = 0
+        this.headlights.modes = [
+            { name: 'off',  beamOpacity: 0, lampOpacity: 0,    groundOpacity: 0, shaderIntensity: 0,   pointIntensity: 0, spotIntensity: 0, distance: 5.5,  beamScale: 0.75 },
+            { name: 'dim',  beamOpacity: 0, lampOpacity: 0.65, groundOpacity: 0, shaderIntensity: 1.6, pointIntensity: 0, spotIntensity: 0, distance: 10.5, beamScale: 0.85 },
+            { name: 'high', beamOpacity: 0, lampOpacity: 1.00, groundOpacity: 0, shaderIntensity: 3.4, pointIntensity: 0, spotIntensity: 0, distance: 16,   beamScale: 1.15 },
+        ]
+        this.headlights.worldPositionLeft = new THREE.Vector3()
+        this.headlights.worldPositionRight = new THREE.Vector3()
+        this.headlights.worldDirection = new THREE.Vector3()
+
+        this.headlights.group = new THREE.Group()
+        this.parts.chassis.add(this.headlights.group)
+
+        this.headlights.beamMaterial = new THREE.MeshBasicMaterial({
+            color: '#bdfaff',
+            transparent: true,
+            opacity: 0,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide,
+        })
+
+        this.headlights.lampMaterial = new THREE.MeshBasicMaterial({
+            color: '#f2ffff',
+            transparent: true,
+            opacity: 0,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+        })
+
+        this.headlights.groundMaterial = new THREE.MeshBasicMaterial({
+            color: '#9ffbff',
+            transparent: true,
+            opacity: 0,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide,
+        })
+
+        const beamGeometry = new THREE.ConeGeometry(1.05, 6.5, 32, 1, true)
+        const lampGeometry = new THREE.SphereGeometry(0.12, 16, 8)
+        const groundGeometry = new THREE.CircleGeometry(1, 32)
+
+        const createItem = (z) =>
+        {
+            const item = {}
+            item.group = new THREE.Group()
+            item.group.position.set(1.28, 0.18, z)
+            this.headlights.group.add(item.group)
+
+            item.lamp = new THREE.Mesh(lampGeometry, this.headlights.lampMaterial)
+            item.lamp.scale.set(1, 0.65, 0.65)
+            item.group.add(item.lamp)
+
+            item.beam = new THREE.Mesh(beamGeometry, this.headlights.beamMaterial)
+            item.beam.position.set(3.25, -0.1, 0)
+            item.beam.rotation.z = Math.PI * 0.5
+            item.beam.scale.z = 0.55
+            item.group.add(item.beam)
+
+            item.ground = new THREE.Mesh(groundGeometry, this.headlights.groundMaterial)
+            item.ground.position.set(3.4, -0.72, 0)
+            item.ground.rotation.x = - Math.PI * 0.5
+            item.ground.scale.set(1.9, 0.35, 1)
+            item.group.add(item.ground)
+
+            item.pointLight = new THREE.PointLight('#d7ffff', 0, 3.5, 2)
+            item.pointLight.position.set(0.15, 0, 0)
+            item.group.add(item.pointLight)
+
+            item.spotLight = new THREE.SpotLight('#d7ffff', 0, 8, Math.PI * 0.15, 0.45, 1.4)
+            item.spotLight.position.set(0.05, 0, 0)
+            item.group.add(item.spotLight)
+
+            item.spotTarget = new THREE.Object3D()
+            item.spotTarget.position.set(6, -0.35, 0)
+            item.group.add(item.spotTarget)
+            item.spotLight.target = item.spotTarget
+
+            return item
+        }
+
+        this.headlights.items = [
+            createItem(0.43),
+            createItem(-0.43),
+        ]
+
+        this.headlights.setMode = (modeIndex) =>
+        {
+            this.headlights.modeIndex = modeIndex
+            this.headlights.mode = this.headlights.modes[this.headlights.modeIndex]
+        }
+
+        this.headlights.cycle = () =>
+        {
+            this.headlights.setMode((this.headlights.modeIndex + 1) % this.headlights.modes.length)
+        }
+
+        this.headlights.setMode(0)
+    }
+
     setAntenna()
     {
         if(!this.parts.antenna)
@@ -517,6 +625,9 @@ export class VisualVehicle
             }
         }
 
+        // Headlights
+        this.updateHeadlights()
+
         // Boost trails
         const trailAlpha = physicalVehicle.goingForward && this.game.player.boosting && this.game.player.accelerating > 0 ? 1 : 0
         this.boostTrails.leftReference.getWorldPosition(this.boostTrails.left.position)
@@ -543,5 +654,46 @@ export class VisualVehicle
 
         this.screenPosition.x = (vector.x * 0.5 + 0.5)
         this.screenPosition.y = (vector.y * -0.5 + 0.5)
+    }
+
+    updateHeadlights()
+    {
+        if(!this.headlights)
+            return
+
+        const mode = this.headlights.mode
+        const flicker = mode.name === 'off' ? 0 : 0.92 + Math.sin(this.game.ticker.elapsed * 28) * 0.05 + Math.sin(this.game.ticker.elapsed * 73) * 0.03
+        const delta = Math.min(this.game.ticker.deltaScaled * 10, 1)
+
+        this.headlights.beamMaterial.opacity += (mode.beamOpacity * flicker - this.headlights.beamMaterial.opacity) * delta
+        this.headlights.lampMaterial.opacity += (mode.lampOpacity * flicker - this.headlights.lampMaterial.opacity) * delta
+        this.headlights.groundMaterial.opacity += (mode.groundOpacity * flicker - this.headlights.groundMaterial.opacity) * delta
+
+        this.headlights.items[0].lamp.getWorldPosition(this.headlights.worldPositionLeft)
+        this.headlights.items[1].lamp.getWorldPosition(this.headlights.worldPositionRight)
+        this.headlights.worldDirection.set(1, -0.025, 0).applyQuaternion(this.parts.chassis.quaternion).normalize()
+
+        this.game.lighting.headlightsPositionLeftUniform.value.copy(this.headlights.worldPositionLeft)
+        this.game.lighting.headlightsPositionRightUniform.value.copy(this.headlights.worldPositionRight)
+        this.game.lighting.headlightsDirectionUniform.value.copy(this.headlights.worldDirection)
+        this.game.lighting.headlightsIntensityUniform.value += (mode.shaderIntensity * flicker - this.game.lighting.headlightsIntensityUniform.value) * delta
+        this.game.lighting.headlightsDistanceUniform.value += (mode.distance - this.game.lighting.headlightsDistanceUniform.value) * delta
+
+        for(const item of this.headlights.items)
+        {
+            const beamDistanceScale = mode.distance / 6.5
+            item.beam.position.x += (mode.distance * 0.5 - item.beam.position.x) * delta
+            item.beam.scale.x += (mode.beamScale - item.beam.scale.x) * delta
+            item.beam.scale.y += (beamDistanceScale - item.beam.scale.y) * delta
+            item.beam.scale.z += (0.55 * mode.beamScale - item.beam.scale.z) * delta
+
+            item.ground.position.x += (mode.distance * 0.52 - item.ground.position.x) * delta
+            item.ground.scale.x += ((1.9 + mode.distance * 0.12) * mode.beamScale - item.ground.scale.x) * delta
+            item.ground.scale.y += ((0.35 + mode.distance * 0.035) * mode.beamScale - item.ground.scale.y) * delta
+
+            item.pointLight.intensity += (mode.pointIntensity * flicker - item.pointLight.intensity) * delta
+            item.spotLight.intensity += (mode.spotIntensity * flicker - item.spotLight.intensity) * delta
+            item.spotLight.distance += (mode.distance - item.spotLight.distance) * delta
+        }
     }
 }

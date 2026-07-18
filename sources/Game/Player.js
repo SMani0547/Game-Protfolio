@@ -234,8 +234,9 @@ export class Player
             { name: 'suspensionsFrontRight', categories: [ 'wandering', 'racing'              ], keys: [ 'Keyboard.Numpad9', 'Keyboard.Digit3' ] },
             { name: 'suspensionsBackRight',  categories: [ 'wandering', 'racing'              ], keys: [ 'Keyboard.Numpad3', 'Keyboard.Digit4' ] },
             { name: 'suspensionsBackLeft',   categories: [ 'wandering', 'racing'              ], keys: [ 'Keyboard.Numpad1', 'Keyboard.Digit1' ] },
-            { name: 'interact',              categories: [ 'wandering', 'racing', 'cinematic' ], keys: [ 'Keyboard.Enter', 'Keyboard.KeyE', 'Keyboard.KeyF', 'Gamepad.cross', 'Touch.interact' ] },
+            { name: 'interact',              categories: [ 'wandering', 'racing', 'cinematic' ], keys: [ 'Keyboard.Enter', 'Keyboard.KeyE', 'Gamepad.cross', 'Touch.interact' ] },
             { name: 'honk',                  categories: [ 'wandering', 'racing', 'cinematic' ], keys: [ 'Keyboard.KeyH', 'Gamepad.l3', 'Touch.honk' ] },
+            { name: 'headlights',            categories: [ 'wandering', 'racing', 'cinematic' ], keys: [ 'Keyboard.KeyF' ] },
         ])
 
         // Respawn
@@ -255,6 +256,13 @@ export class Player
         {
             if(action.active)
                 this.honk()
+        })
+
+        // Headlights
+        this.game.inputs.events.on('headlights', (action) =>
+        {
+            if(action.active)
+                this.game.world.visualVehicle?.headlights?.cycle()
         })
 
         // Suspensions
