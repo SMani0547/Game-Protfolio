@@ -89,6 +89,14 @@ export class Lighting
         this.bounceColor = uniform(color('#82487f'))
         this.coreShadowEdgeLow = uniform(float(-0.25))
         this.coreShadowEdgeHigh = uniform(float(1))
+        this.headlightsPositionLeftUniform = uniform(new THREE.Vector3(0, -1000, 0))
+        this.headlightsPositionRightUniform = uniform(new THREE.Vector3(0, -1000, 0))
+        this.headlightsDirectionUniform = uniform(new THREE.Vector3(1, -0.025, 0).normalize())
+        this.headlightsColorUniform = uniform(color('#bdfaff'))
+        this.headlightsIntensityUniform = uniform(0)
+        this.headlightsDistanceUniform = uniform(5.5)
+        this.headlightsConeEdgeLowUniform = uniform(0.42)
+        this.headlightsConeEdgeHighUniform = uniform(0.90)
 
         // Debug
         if(this.game.debug.active)
@@ -102,6 +110,8 @@ export class Lighting
             this.debugPanel.addBlade({ view: 'separator' })
             this.debugPanel.addBinding(this.coreShadowEdgeLow, 'value', { label: 'coreShadowEdgeLow', min: - 1, max: 1, step: 0.01 })
             this.debugPanel.addBinding(this.coreShadowEdgeHigh, 'value', { label: 'coreShadowEdgeHigh', min: - 1, max: 1, step: 0.01 })
+            this.debugPanel.addBinding(this.headlightsIntensityUniform, 'value', { label: 'headlightsIntensity', min: 0, max: 5, step: 0.01 })
+            this.debugPanel.addBinding(this.headlightsDistanceUniform, 'value', { label: 'headlightsDistance', min: 1, max: 20, step: 0.1 })
         }
     }
 

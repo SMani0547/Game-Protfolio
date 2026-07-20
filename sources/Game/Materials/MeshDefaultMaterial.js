@@ -117,6 +117,26 @@ export class MeshDefaultMaterial extends THREE.MeshLambertNodeMaterial
                 const shadowColor = baseColor.rgb.mul(this.game.lighting.shadowColor).rgb
                 outputColor.assign(mix(outputColor, shadowColor, combinedShadowMix))
             }
+
+            // Vehicle headlights
+            {
+                const getHeadlightStrength = (positionUniform) =>
+                {
+                    const toSurface = positionWorld.sub(positionUniform).toVar()
+                    const distance = toSurface.length()
+                    const direction = toSurface.normalize()
+                    const cone = direction.dot(this.game.lighting.headlightsDirectionUniform).smoothstep(this.game.lighting.headlightsConeEdgeLowUniform, this.game.lighting.headlightsConeEdgeHighUniform)
+                    const distanceMix = distance.div(this.game.lighting.headlightsDistanceUniform).oneMinus().clamp(0, 1).pow(2)
+                    const normalMix = reorientedNormal.dot(direction.mul(-1)).max(0).mul(0.65).add(0.35)
+
+                    return cone.mul(distanceMix).mul(normalMix)
+                }
+
+                const leftHeadlight = getHeadlightStrength(this.game.lighting.headlightsPositionLeftUniform)
+                const rightHeadlight = getHeadlightStrength(this.game.lighting.headlightsPositionRightUniform)
+                const headlightsStrength = leftHeadlight.add(rightHeadlight).mul(this.game.lighting.headlightsIntensityUniform)
+                outputColor.addAssign(baseColor.mul(this.game.lighting.headlightsColorUniform).mul(headlightsStrength))
+            }
             
             // Fog
             if(this.hasFog)
