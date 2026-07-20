@@ -87,6 +87,19 @@
                 height 40px
                 margin 3px
 
+            &[data-name="orange"]
+                .picture
+                    opacity 0
+
+                &::before
+                    content ''
+                    position absolute
+                    top 3px
+                    left 3px
+                    width 40px
+                    height 40px
+                    background linear-gradient(180deg, #ff72c8, #b8007d)
+
             .lock
                 display none
                 position absolute

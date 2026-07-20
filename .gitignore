@@ -4,6 +4,7 @@ dist
 .vercel
 .VSCodeCounter
 .env*
+!multiplayer-server/.env.example
 .autosave
 .wav
 !static/sounds/music/*.wav
