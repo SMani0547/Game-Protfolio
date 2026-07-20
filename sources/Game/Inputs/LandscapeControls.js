@@ -51,7 +51,7 @@ export class LandscapeControls
         )
             return false
 
-        return window.matchMedia('(orientation: landscape) and (pointer: coarse) and (max-height: 560px)').matches
+        return window.matchMedia('(orientation: landscape) and (pointer: coarse) and (max-width: 1366px)').matches
     }
 
     setJoystick()
