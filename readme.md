@@ -1,4 +1,4 @@
-# Shiva Mani Goundar Portfolio 2026
+# Shiva Mani Goundar Portfolio 2026 
 
 <p align="center">
   <img src="./static/social/share-image.png" alt="Shiva Mani Goundar Portfolio 2026 preview" width="100%" />
